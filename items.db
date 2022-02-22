@@ -1,0 +1,46 @@
+local items = {}
+
+--[[
+    Weapons -
+    All weapons should go under this
+]]
+items.weapons = {}
+items.weapons.xcn_1201 = {}
+-- standard data
+items.weapons.xcn_1201.technicalName = "xcn_1201"
+items.weapons.xcn_1201.displayName = "XCN-1201"
+items.weapons.xcn_1201.description = "A lightweight sidearm produced by North Texas Federal. Chambered in .45 Auto. Reliable, accurate, easily servicable."
+items.weapons.xcn_1201.sellable = true
+items.weapons.xcn_1201.baseValue = 350
+items.weapons.xcn_1201.weight = 5
+items.weapons.xcn_1201.minQuality = 1
+items.weapons.xcn_1201.maxQuality = 5
+items.weapons.xcn_1201.slot = "secondary"
+items.weapons.xcn_1201.displaySlot = "Secondary"
+
+-- weapon data
+items.weapons.xcn_1201.baseAttack = 10
+
+--[[
+    Consumables -
+    All consumables should go under this
+]]
+items.consumables = {}
+items.consumables.stim_H3 = {}
+-- standard data
+items.consumables.stim_H3.technicalName = "stim_H3"
+items.consumables.stim_H3.displayName = "H3NX Stimulant Auto-Injector"
+items.consumables.stim_H3.description = "A common stimulant auto-injector; increases speed of clotting in wounds. +(50 x Item Level) HP"
+items.consumables.stim_H3.sellable = true
+items.consumables.stim_H3.baseValue = 50
+items.consumables.stim_H3.weight = 0.25
+items.consumables.stim_H3.minQuality = 1
+items.consumables.stim_H3.maxQuality = 3
+
+-- consumable data
+function items.consumables.stim_H3.use(stack, gent)
+    gent:heal(50*stack.quality)
+    gent:removeStackAmount(stack, 1)
+end
+
+return items

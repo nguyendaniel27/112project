@@ -1,0 +1,61 @@
+local gents = {}
+local natGen = {}
+
+gents.player = function (location)
+    if location == "hostile" then
+        return false
+    end
+    local params = {}
+    params.HP = 200
+    params.maxHP = 200
+    params.class = "basegame:player"
+    params.displayName = "Player"
+    params.isAlive = true
+    local player = game.generateGEnt(params)
+    player:addStackAmount(game.generateStack("xcn_1201", "weapons", 1, {["quality"] = 5}), 1)
+    player:addStackAmount(game.generateStack("stim_H3", "consumables", 1), 10)
+    player:setLocation(location)
+    player.weightLimit = 100
+    return player
+end
+
+gents.dropBag = function (location)
+    if location == "hostile" then
+        return false
+    end
+    local params = {}
+    params.HP = 0
+    params.maxHP = 0
+    params.class = "basegame:dropbag"
+    params.displayName = "Dropped Items Bag"
+    params.isAlive = false
+    local dropbag = game.generateGEnt(params)
+    dropbag:setLocation(location)
+    return dropbag
+end
+
+gents.enemy = function (location)
+    if location == "hostile" then
+        return true
+    end
+    local params = {}
+    params.HP = 100
+    params.maxHP = 100
+    params.class = "basegame:enemy"
+    params.displayName = "Enemy"
+    params.isAlive = true
+    params.blacklist = false
+    params.filter = {}
+    local enemy = game.generateGEnt(params)
+    enemy:setLocation(location)
+    enemy:setCombatant(location)
+    enemy.natGenData = {}
+    enemy.natGenData.minItems = 1
+    enemy.natGenData.maxItems = 3
+    enemy.natGenData.mustHaveWeapon = true
+    return enemy
+end
+
+natGen.enemy = gents.enemy -- alias
+
+return gents, natGen
