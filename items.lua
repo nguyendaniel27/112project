@@ -165,7 +165,7 @@ items.consumables = {}
 items.consumables.health_H3 = {}
 items.consumables.health_H3.technicalName = "health_H3"
 items.consumables.health_H3.displayName = "(HEALTH) H3NX Stimulant Auto-Injector"
-items.consumables.health_H3.rarity = "common"
+items.consumables.health_H3.rarity = "uncommon"
 items.consumables.health_H3.description = "A common stimulant auto-injector; increases speed of clotting in wounds. +50 HP"
 items.consumables.health_H3.sellable = true
 items.consumables.health_H3.baseValue = 50
@@ -195,16 +195,16 @@ end
 items.consumables.armor_ceramic = {}
 items.consumables.armor_ceramic.technicalName = "armor_ceramic"
 items.consumables.armor_ceramic.displayName = "(ARMOR) Ceramic Armor Plate"
-items.consumables.armor_ceramic.rarity = "uncommon"
-items.consumables.armor_ceramic.description = "Ceramic armor plates for your plate carrier. +(5 x Item Level) max HP"
+items.consumables.armor_ceramic.rarity = "legendary"
+items.consumables.armor_ceramic.description = "Ceramic armor plates for your plate carrier. +(25 x Item Level) max HP"
 items.consumables.armor_ceramic.sellable = true
 items.consumables.armor_ceramic.baseValue = 45
 items.consumables.armor_ceramic.weight = 1
 items.consumables.armor_ceramic.minQuality = 1
 items.consumables.armor_ceramic.maxQuality = 5
 function items.consumables.armor_ceramic.use(stack, gent)
-   gent.maxHP = gent.maxHP + (5 * stack.quality)
-   gent.HP = gent.HP + (5 * stack.quality)
+   gent.maxHP = gent.maxHP + (25 * stack.quality)
+   gent.HP = gent.HP + (25 * stack.quality)
    gent:removeStackAmount(stack, 1)
 end
 

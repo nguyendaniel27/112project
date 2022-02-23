@@ -524,7 +524,29 @@ function game.randomizedGEnt(location, technicalName)
     if location ~= nil then
         local gEnt
         if technicalName == nil then
-            if location.natGenData.allowHostiles == false then
+            if type(location.natGenData.whitelist) == "table" then
+                if game.cache.gents[location.technicalName.."_whitelist"] == nil then
+                    game.cache.gents[location.technicalName.."_whitelist"] = {}
+                    for k,v in pairs(game.assets.natGenerate) do
+                        for k2,v2 in pairs(location.natGenData.whitelist) do
+                            print(k, v2, k==v2)
+                            if k == v2 then
+                                if game.cache.gents[location.technicalName.."_whitelist"][v("rarity")] == nil then
+                                    game.cache.gents[location.technicalName.."_whitelist"][v("rarity")] = {}
+                                end
+                                table.insert(game.cache.gents[location.technicalName.."_whitelist"][v("rarity")], v)
+                            end
+                        end
+                    end
+                end
+                -- here
+                local artbl = {}
+                for k,v in pairs(game.cache.gents[location.technicalName.."_whitelist"]) do
+                    table.insert(artbl, k)
+                end
+                local rarity = game.rarities:genRarity(artbl)
+                gEnt = game.cache.gents[location.technicalName.."_whitelist"][rarity][math.random(1,#game.cache.gents[location.technicalName.."_whitelist"][rarity])](location)
+            elseif location.natGenData.allowHostiles == false then
                 if game.cache.gents.nonHostile == nil then
                     game.cache.gents.nonHostile = {}
                     for k,v in pairs(game.assets.natGenerate) do
@@ -634,9 +656,9 @@ end
 
 function game.inventory.displayCallback(stack)
     if stack.equipped == false then
-        return "("..stack.quantity..") "..stack.displayName..", "..game.qualities[stack.quality].displayName
+        return "("..stack.quantity..") "..stack.displayName..", "..game.qualities[stack.quality].displayName..", "..game.rarities[stack.reference.rarity].displayName
     else
-        return "("..stack.quantity..") "..stack.displayName.." (e), "..game.qualities[stack.quality].displayName
+        return "("..stack.quantity..") "..stack.displayName.." (e), "..game.qualities[stack.quality].displayName..", "..game.rarities[stack.reference.rarity].displayName
     end
 end
 
@@ -865,7 +887,7 @@ game.playerTurn = true
 game.gameOver = false
 
 function game.locationMenu.displayCallback(locationNode)
-    return locationNode.object.displayName
+    return locationNode.object.displayName..", "..#locationNode.object.combatants.."E/"..#locationNode.object.environment.."T"
 end
 
 function game.locationMenu.choiceCallback(locationNode)
