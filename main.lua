@@ -199,8 +199,8 @@ function game.rarities:genRarity (allowed)
 end
 
 game.assets = {}
-game.assets.locations = dofile("locations.db")
-game.assets.items = dofile("items.db")
+game.assets.locations = dofile("locations.lua")
+game.assets.items = dofile("items.lua")
 math.randomseed(os.clock()*1000000+os.time())
 
 function game.genQuality(minQuality, maxQuality)
@@ -458,7 +458,7 @@ function game.generateGEnt(statusData)
     return gent
 end
 
-game.assets.gents, game.assets.natGenerate = dofile("gents.db")
+game.assets.gents, game.assets.natGenerate = dofile("gents.lua")
 
 function game.generateLocation(technicalName, nodePassthrough)
     local location = {}
