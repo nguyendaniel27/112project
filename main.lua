@@ -149,42 +149,85 @@ game.qualities[5].displayName = "Masterwork"
 game.qualities[5].range = {976,1000}
 game.qualities[5].damageMult = 7
 
+game.rarities = {}
+game.rarities.common = {}
+game.rarities.common.displayName = "Common"
+game.rarities.common.spawnRange = {1,500}
+game.rarities.common.asr = 500
+game.rarities.uncommon = {}
+game.rarities.uncommon.displayName = "Uncommon"
+game.rarities.uncommon.spawnRange = {501,750}
+game.rarities.uncommon.asr = 250
+game.rarities.rare = {}
+game.rarities.rare.displayName = "Rare"
+game.rarities.rare.spawnRange = {751,900}
+game.rarities.rare.asr = 150
+game.rarities.legendary = {}
+game.rarities.legendary.displayName = "Legendary"
+game.rarities.legendary.spawnRange = {901,975}
+game.rarities.legendary.asr = 75
+game.rarities.exotic = {}
+game.rarities.exotic.displayName = "Exotic"
+game.rarities.exotic.spawnRange = {976,1000}
+game.rarities.exotic.asr = 25
+
+function game.rarities:genRarity (allowed)
+    if allowed == nil then
+        local out = math.random(1,1000)
+        for k,v in pairs(self) do
+            if type(v) == "table" then
+                if v.spawnRange[1] <= out and v.spawnRange[2] >= out then
+                    return k
+                end
+            end
+        end
+        return "ERR"
+    else
+        local iter = 1
+        local spawnRanges = {}
+        for k,v in pairs(allowed) do
+            spawnRanges[v] = {iter, (iter+game.rarities[v].asr) - 1}
+            iter = iter + game.rarities[v].asr
+        end
+        local rand = math.random(1, iter-1)
+        for k,v in pairs(spawnRanges) do
+            if v[1] <= rand and rand <= v[2] then
+                return k
+            end
+        end
+    end
+end
+
 game.assets = {}
 game.assets.locations = dofile("locations.db")
 game.assets.items = dofile("items.db")
 math.randomseed(os.clock()*1000000+os.time())
+
+function game.genQuality(minQuality, maxQuality)
+    local quality
+    local rgen = math.random(1, 1000)
+    for k,v in pairs(game.qualities) do
+        if v.range[1] <= rgen and rgen <= v.range[2] then
+            quality = k
+        end
+    end
+    if quality > maxQuality then
+        quality = maxQuality
+    elseif quality < minQuality then
+        quality = minQuality
+    end
+    return quality
+end
 
 function game.defaultPIG(stack, item, PIGArgs)
     if type(PIGArgs) == "table" then
         if PIGArgs.quality ~= nil then
             stack.quality = PIGArgs.quality
         else
-            local rgen = math.random(1, 1000)
-            for k,v in pairs(game.qualities) do
-                if v.range[1] <= rgen and rgen <= v.range[2] then
-                    stack.quality = k
-                    break
-                end
-            end
-            if stack.quality > stack.reference.maxQuality then
-                stack.quality = stack.reference.maxQuality
-            elseif stack.quality < stack.reference.minQuality then
-                stack.quality = stack.reference.minQuality
-            end
+            stack.quality = game.genQuality(stack.reference.minQuality,stack.reference.maxQuality)
         end
     else
-        local rgen = math.random(1, 1000)
-        for k,v in pairs(game.qualities) do
-            if v.range[1] <= rgen and rgen <= v.range[2] then
-                stack.quality = k
-                break
-            end
-        end
-        if stack.quality > stack.reference.maxQuality then
-            stack.quality = stack.reference.maxQuality
-        elseif stack.quality < stack.reference.minQuality then
-            stack.quality = stack.reference.minQuality
-        end
+        stack.quality = game.genQuality(stack.reference.minQuality,stack.reference.maxQuality)
     end
 end
 
@@ -202,9 +245,7 @@ function game.generateStack(technicalName, category, quantity, PIGArgs)
     stack.reference = game.assets.items[category][technicalName]
     stack.equipped = false
     stack.use = stack.reference.use
-    if game.assets.items[category][technicalName].slot ~= nil then
-        stack.slot = game.assets.items[category][technicalName].slot
-    end
+    stack.slot = game.assets.items[category][technicalName].slot
     if game.assets.items[category][technicalName].overridePIG ~= nil then
         game.assets.items[category][technicalName]:overridePIG(stack, PIGArgs) -- overridePerInstanceGeneration should be defined as a method with stack and PIGArgs inputs
     else
@@ -445,20 +486,37 @@ function game.randomItem(category)
             game.cache.items.all = {}
             for k,v in pairs(game.assets.items) do
                 for k2,v2 in pairs(v) do
-                    table.insert(game.cache.items.all, {v2.technicalName, k})
+                    if game.cache.items.all[v2.rarity] == nil then
+                        game.cache.items.all[v2.rarity] = {}
+                    end
+                    table.insert(game.cache.items.all[v2.rarity], {v2.technicalName, k})
                 end
             end
         end
-        local choice = math.random(1, #game.cache.items.all)
-        return game.cache.items.all[choice][1], game.cache.items.all[choice][2]
+        local artbl = {}
+        for k,v in pairs(game.cache.items.all) do
+            table.insert(artbl, k)
+        end
+        local rarity = game.rarities:genRarity(artbl)
+        local choice = math.random(1, #game.cache.items.all[rarity])
+        return game.cache.items.all[rarity][choice][1], game.cache.items.all[rarity][choice][2]
     else
         if game.cache.items[category] == nil then
             game.cache.items[category] = {}
             for k,v in pairs(game.assets.items[category]) do
-                table.insert(game.cache.items[category], v.technicalName)
+                if game.cache.items[category][v.rarity] == nil then
+                    game.cache.items[category][v.rarity] = {}
+                end
+                table.insert(game.cache.items[category][v.rarity], v.technicalName)
             end
         end
-        return game.cache.items[category][math.random(1, #game.cache.items[category])], category
+        local artbl = {}
+        for k,v in pairs(game.cache.items[category]) do
+            table.insert(artbl, k)
+        end
+        local rarity = game.rarities:genRarity(artbl)
+        local choice = math.random(1, #game.cache.items[category][rarity])
+        return game.cache.items[category][rarity][choice], category
     end
 end
 
@@ -471,21 +529,37 @@ function game.randomizedGEnt(location, technicalName)
                     game.cache.gents.nonHostile = {}
                     for k,v in pairs(game.assets.natGenerate) do
                         if v("hostile") ~= true then
-                            table.insert(game.cache.gents.nonHostile, v)
+                            if game.cache.gents.nonHostile[v("rarity")] == nil then
+                                game.cache.gents.nonHostile[v("rarity")] = {}
+                            end
+                            table.insert(game.cache.gents.nonHostile[v("rarity")], v)
                         end
                     end
                 end
                 -- here
-                gEnt = game.cache.gents.nonHostile[math.random(1,#game.cache.gents.nonHostile)](location)
+                local artbl = {}
+                for k,v in pairs(game.cache.gents.nonHostile) do
+                    table.insert(artbl, k)
+                end
+                local rarity = game.rarities:genRarity(artbl)
+                gEnt = game.cache.gents.nonHostile[rarity][math.random(1,#game.cache.gents.nonHostile[rarity])](location)
             else
                 if game.cache.gents.allNat == nil then
                     game.cache.gents.allNat = {}
                     for k,v in pairs(game.assets.natGenerate) do
-                        table.insert(game.cache.gents.allNat,v)
+                        if game.cache.gents.allNat[v("rarity")] == nil then
+                            game.cache.gents.allNat[v("rarity")] = {}
+                        end
+                        table.insert(game.cache.gents.allNat[v("rarity")],v)
                     end
                 end
                 -- here
-                gEnt = game.cache.gents.allNat[math.random(1,#game.cache.gents.allNat)](location)
+                local artbl = {}
+                for k,v in pairs(game.cache.gents.allNat) do
+                    table.insert(artbl, k)
+                end
+                local rarity = game.rarities:genRarity(artbl)
+                gEnt = game.cache.gents.allNat[rarity][math.random(1,#game.cache.gents.allNat[rarity])](location)
             end
         else
             gEnt = game.assets.gents[technicalName](location)
@@ -521,10 +595,18 @@ function game.randomizedLocation (args, nodePassthrough)
     if game.cache.locations.all == nil then
         game.cache.locations.all = {}
         for k,v in pairs(game.assets.locations) do
-            table.insert(game.cache.locations.all, v.technicalName)
+            if game.cache.locations.all[v.rarity] == nil then
+                game.cache.locations.all[v.rarity] = {}
+            end
+            table.insert(game.cache.locations.all[v.rarity], v.technicalName)
         end
     end
-    local techName = game.cache.locations.all[math.random(1,#game.cache.locations.all)]
+    local artbl = {}
+    for k,v in pairs(game.cache.locations.all) do
+        table.insert(artbl, k)
+    end
+    local rarity = game.rarities:genRarity(artbl)
+    local techName = game.cache.locations.all[rarity][math.random(1,#game.cache.locations.all[rarity])]
     local location = game.generateLocation(techName, nodePassthrough)
     local gentSpawns = math.random(location.natGenData.minSpawn,location.natGenData.maxSpawn)
     if not (gentSpawns <= 0) then
@@ -621,6 +703,7 @@ function game.inventory.playerChoiceCallback(stack)
         end
         if stack.reference.baseAttack ~= nil then
             print("Attack Damage: "..stack:calculateDamage())
+            print("Hit Chance: "..stack.reference.baseHitChance)
         end
 
         -- insert effects, resistance, damage type, damage threshold data here when implemented
@@ -683,6 +766,7 @@ function game.inventory.playerCombatChoiceCallback(stack)
         end
         if stack.reference.baseAttack ~= nil then
             print("Attack Damage: "..stack:calculateDamage())
+            print("Hit Chance: "..stack.reference.baseHitChance)
         end
 
         -- insert effects, resistance, damage type, damage threshold data here when implemented
@@ -738,6 +822,7 @@ function game.inventory.nonPlayerInvCallback(stack, args)
         end
         if stack.reference.baseAttack ~= nil then
             print("Attack Damage: "..stack:calculateDamage())
+            print("Hit Chance: "..stack.reference.baseHitChance)
         end
 
         -- insert effects, resistance, damage type, damage threshold data here when implemented
@@ -761,7 +846,7 @@ function game.inventory.nonPlayerInvCallback(stack, args)
             end
             game.player:addStackAmount(stack, amt)
             args.gent:removeStackAmount(stack, amt)
-            return true
+            return false
         elseif input:lower() == "l" then
             break
         end
@@ -915,46 +1000,52 @@ while true do
                                             sec = game.player:equipped("secondary")
                                             print("(S)econdary: "..sec.displayName..", "..game.qualities[sec.quality].displayName..", "..sec:calculateDamage().." damage")
                                         end
-                                        if false ~= game.player:equipped("secondary") and false ~= game.player:equipped("primary") then
-                                            print("(B)oth: "..(sec:calculateDamage() + pri:calculateDamage()).." damage")
-                                        end
                                         print("----- ATTACK -----")
                                         local input = io.read()
                                         if input:lower() == "l" then
                                             break
                                         elseif input:lower() == "p" and game.player:equipped("primary") ~= false then
                                             print("You attack '"..choice.displayName.."' for "..pri:calculateDamage().." damage")
-                                            local success, alive = choice:damage(pri:calculateDamage())
-                                            if not alive then
-                                                table.remove(game.player.locationNode.combatants, choiceIndex)
-                                                print("You have killed "..choice.displayName)
+                                            local priHitRoll = math.random(1,100) <= pri.reference.baseHitChance
+                                            if priHitRoll then
+                                                local success, alive = choice:damage(pri:calculateDamage())
+                                                print("You hit!")
+                                                if not alive then
+                                                    table.remove(game.player.locationNode.combatants, choiceIndex)
+                                                    print("You have killed "..choice.displayName)
+                                                end
+                                                game.playerTurn = false
+                                                print("Press enter to continue.")
+                                                io.read()
+                                                break
+                                            else
+                                                print("You miss.")
+                                                game.playerTurn = false
+                                                print("Press enter to continue.")
+                                                io.read()
+                                                break
                                             end
-                                            game.playerTurn = false
-                                            print("Press enter to continue.")
-                                            io.read()
-                                            break
                                         elseif input:lower() == "s" and game.player:equipped("secondary") ~= false then
                                             print("You attack '"..choice.displayName.."' for "..sec:calculateDamage().." damage")
-                                            local success, alive = choice:damage(sec:calculateDamage())
-                                            if not alive then
-                                                table.remove(game.player.locationNode.combatants, choiceIndex)
-                                                print("You have killed "..choice.displayName)
+                                            local secHitRoll = math.random(1,100) <= sec.reference.baseHitChance
+                                            if secHitRoll then
+                                                local success, alive = choice:damage(sec:calculateDamage())
+                                                print("You hit!")
+                                                if not alive then
+                                                    table.remove(game.player.locationNode.combatants, choiceIndex)
+                                                    print("You have killed "..choice.displayName)
+                                                end
+                                                game.playerTurn = false
+                                                print("Press enter to continue.")
+                                                io.read()
+                                                break
+                                            else
+                                                print("You miss.")
+                                                game.playerTurn = false
+                                                print("Press enter to continue.")
+                                                io.read()
+                                                break
                                             end
-                                            game.playerTurn = false
-                                            print("Press enter to continue.")
-                                            io.read()
-                                            break
-                                        elseif input:lower() == "b" and false ~= game.player:equipped("secondary") and false ~= game.player:equipped("primary") then
-                                            print("You attack '"..choice.displayName.."' for "..(sec:calculateDamage() + pri:calculateDamage()).." damage")
-                                            local success, alive = choice:damage((sec:calculateDamage() + pri:calculateDamage()))
-                                            if not alive then
-                                                table.remove(game.player.locationNode.combatants, choiceIndex)
-                                                print("You have killed "..choice.displayName)
-                                            end 
-                                            game.playerTurn = false
-                                            print("Press enter to continue.")
-                                            io.read()
-                                            break
                                         end
                                     end
                                     
@@ -967,19 +1058,31 @@ while true do
             else
                 for k,v in pairs(game.player.locationNode.combatants) do
                     if v:equipped("primary") ~= false then
-                        print(v.displayName.." deals "..(v:equipped("primary"):calculateDamage()*game.player:calculateDamageMultiplier()).." damage to the player using '"..v:equipped("primary").displayName.."'.")
-                        local success, alive = game.player:damage(v:equipped("primary"):calculateDamage()*game.player:calculateDamageMultiplier())
-                        if not alive then
-                            game.setGameOver()
-                            break
-                        end 
+                        print(v.displayName.." attempts to deal "..(v:equipped("primary"):calculateDamage()*game.player:calculateDamageMultiplier()).." damage to the player using '"..v:equipped("primary").displayName.."'.")
+                        local priHitRoll = math.random(1,100) <= v:equipped("primary").reference.baseHitChance
+                        if priHitRoll then
+                            print(v.displayName.." hits!")
+                            local success, alive = game.player:damage(v:equipped("primary"):calculateDamage()*game.player:calculateDamageMultiplier())
+                            if not alive then
+                                game.setGameOver()
+                                break
+                            end 
+                        else
+                            print(v.displayName.." misses.")
+                        end
                     elseif v:equipped("secondary") ~= false then
-                        print(v.displayName.." deals "..(v:equipped("secondary"):calculateDamage()*game.player:calculateDamageMultiplier()).." damage to the player using '"..v:equipped("secondary").displayName.."'.")
-                        local success, alive = game.player:damage(v:equipped("secondary"):calculateDamage()*game.player:calculateDamageMultiplier())
-                        if not alive then
-                            game.setGameOver()
-                            break
-                        end 
+                        print(v.displayName.." attempts to deal "..(v:equipped("secondary"):calculateDamage()*game.player:calculateDamageMultiplier()).." damage to the player using '"..v:equipped("secondary").displayName.."'.")
+                        local secHitRoll = math.random(1,100) <= v:equipped("secondary").reference.baseHitChance
+                        if secHitRoll then
+                            print(v.displayName.." hits!")
+                            local success, alive = game.player:damage(v:equipped("secondary"):calculateDamage()*game.player:calculateDamageMultiplier())
+                            if not alive then
+                                game.setGameOver()
+                                break
+                            end 
+                        else
+                            print(v.displayName.." misses.")
+                        end
                     else
                         print(v.displayName.." has no weapons equipped and therefore cannot attack.")
                     end
