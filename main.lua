@@ -529,7 +529,6 @@ function game.randomizedGEnt(location, technicalName)
                     game.cache.gents[location.technicalName.."_whitelist"] = {}
                     for k,v in pairs(game.assets.natGenerate) do
                         for k2,v2 in pairs(location.natGenData.whitelist) do
-                            print(k, v2, k==v2)
                             if k == v2 then
                                 if game.cache.gents[location.technicalName.."_whitelist"][v("rarity")] == nil then
                                     game.cache.gents[location.technicalName.."_whitelist"][v("rarity")] = {}

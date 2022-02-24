@@ -177,18 +177,18 @@ function items.consumables.health_H3.use(stack, gent)
     gent:removeStackAmount(stack, 1)
 end
 
-items.consumables.health_suspiciousNeedle = {}
-items.consumables.health_suspiciousNeedle.technicalName = "health_suspiciousNeedle"
-items.consumables.health_suspiciousNeedle.displayName = "(HEALTH) Suspicious Needle"
-items.consumables.health_suspiciousNeedle.rarity = "legendary"
-items.consumables.health_suspiciousNeedle.description = 'A dirty syringe with messy writing on the side, reading: "Good feeling." +150 HP'
-items.consumables.health_suspiciousNeedle.sellable = true
-items.consumables.health_suspiciousNeedle.baseValue = 65
-items.consumables.health_suspiciousNeedle.weight = 0.25
-items.consumables.health_suspiciousNeedle.minQuality = 1
-items.consumables.health_suspiciousNeedle.maxQuality = 1
-function items.consumables.health_suspiciousNeedle.use(stack, gent)
-    gent:heal(150)
+items.consumables.health_qpmed = {}
+items.consumables.health_qpmed.technicalName = "health_qpmed"
+items.consumables.health_qpmed.displayName = "(HEALTH) QP-71T Medkit"
+items.consumables.health_qpmed.rarity = "legendary"
+items.consumables.health_qpmed.description = 'A comprehensive first-aid kit for on-field treatment of dangerous wounds. +250 HP'
+items.consumables.health_qpmed.sellable = true
+items.consumables.health_qpmed.baseValue = 130
+items.consumables.health_qpmed.weight = 0.25
+items.consumables.health_qpmed.minQuality = 1
+items.consumables.health_qpmed.maxQuality = 1
+function items.consumables.health_qpmed.use(stack, gent)
+    gent:heal(250)
     gent:removeStackAmount(stack, 1)
 end
 
@@ -196,15 +196,15 @@ items.consumables.armor_ceramic = {}
 items.consumables.armor_ceramic.technicalName = "armor_ceramic"
 items.consumables.armor_ceramic.displayName = "(ARMOR) Ceramic Armor Plate"
 items.consumables.armor_ceramic.rarity = "legendary"
-items.consumables.armor_ceramic.description = "Ceramic armor plates for your plate carrier. +(25 x Item Level) max HP"
+items.consumables.armor_ceramic.description = "Ceramic armor plates for your plate carrier. +(10 x Item Level) max HP"
 items.consumables.armor_ceramic.sellable = true
 items.consumables.armor_ceramic.baseValue = 45
 items.consumables.armor_ceramic.weight = 1
 items.consumables.armor_ceramic.minQuality = 1
 items.consumables.armor_ceramic.maxQuality = 5
 function items.consumables.armor_ceramic.use(stack, gent)
-   gent.maxHP = gent.maxHP + (25 * stack.quality)
-   gent.HP = gent.HP + (25 * stack.quality)
+   gent.maxHP = gent.maxHP + (10 * stack.quality)
+   gent.HP = gent.HP + (10 * stack.quality)
    gent:removeStackAmount(stack, 1)
 end
 

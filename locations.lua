@@ -69,4 +69,19 @@ locations.scav_base.natGenData.minSpawn = 5
 locations.scav_base.natGenData.maxSpawn = 12
 locations.scav_base.natGenData.allowHostiles = true
 
+-- High value locations
+
+-- Abandoned labs
+locations.hvl_labs = {}
+locations.hvl_labs.technicalName = "hvl_labs"
+locations.hvl_labs.displayName = "Abandoned Labs"
+locations.hvl_labs.description = "A scavenger's base towers over you. You hope you are prepared enough to fight."
+locations.hvl_labs.rarity = "exotic"
+
+locations.hvl_labs.natGenData = {}
+locations.hvl_labs.natGenData.whitelist = {"scav_captain", "militia_specialist", "militia_captain", "militia_commander", "cache_large"}
+locations.hvl_labs.natGenData.minSpawn = 5
+locations.hvl_labs.natGenData.maxSpawn = 12
+locations.hvl_labs.natGenData.allowHostiles = true
+
 return locations
