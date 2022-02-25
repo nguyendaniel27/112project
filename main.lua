@@ -64,9 +64,9 @@ function utils.generateMap(length, width, objectCallback, args)
 		map[i] = {}
 		if i ~= 1 then
 			local layerwidth = math.random(1,width)
-			if i == length then
+			--[[if i == length then
 				layerwidth = 1
-			end
+			end]]
 			for _ = 1, layerwidth do
 				local node = {}
 				node.to = {}
@@ -638,9 +638,11 @@ function game.randomizedLocation (args, nodePassthrough)
     return location
 end
 
-game.map = utils.generateMap(200,9,game.randomizedLocation)
+game.map = {}
 
-game.player = game.assets.gents.player(game.map[1][1].object)
+table.insert(game.map,utils.generateMap(50,9,game.randomizedLocation))
+
+game.player = game.assets.gents.player(game.map[1][1][1].object)
 
 game.inventory = {}
 
@@ -960,6 +962,10 @@ while true do
                 end)
             end
         elseif input:lower() == "m" then
+            if #game.player.locationNode.node.to == 0 then
+                table.insert(game.map,utils.generateMap(50,9,game.randomizedLocation))
+                table.insert(game.player.locationNode.node.to,game.map[#game.map][1][1])
+            end
             utils.displayList(game.player.locationNode.node.to,game.locationMenu.displayCallback, game.locationMenu.choiceCallback)
         end
     else

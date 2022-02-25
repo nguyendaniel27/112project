@@ -41,6 +41,19 @@ locations.forest_boreal.natGenData.minSpawn = 1
 locations.forest_boreal.natGenData.maxSpawn = 2
 locations.forest_boreal.natGenData.allowHostiles = true
 
+-- River
+locations.forest_river = {}
+locations.forest_river.technicalName = "forest_river"
+locations.forest_river.displayName = "Forest River"
+locations.forest_river.description = "The sound of water rushing past echoes through the forest."
+locations.forest_river.rarity = "uncommon"
+
+locations.forest_river.natGenData = {}
+locations.forest_river.natGenData.whitelist = {"scav_weak", "scav", "scav_hardened", "scav_captain", "militia_infantry", "cache_small"}
+locations.forest_river.natGenData.minSpawn = 2
+locations.forest_river.natGenData.maxSpawn = 3
+locations.forest_river.natGenData.allowHostiles = true
+
 -- Scav Locations
 
 -- Scav Campsite
@@ -75,13 +88,26 @@ locations.scav_base.natGenData.allowHostiles = true
 locations.hvl_labs = {}
 locations.hvl_labs.technicalName = "hvl_labs"
 locations.hvl_labs.displayName = "Abandoned Labs"
-locations.hvl_labs.description = "A scavenger's base towers over you. You hope you are prepared enough to fight."
+locations.hvl_labs.description = "The dead ceiling lights hang overhead, the sound of water dripping onto the cracked tiles seems to echo throughout the hall."
 locations.hvl_labs.rarity = "exotic"
 
 locations.hvl_labs.natGenData = {}
-locations.hvl_labs.natGenData.whitelist = {"scav_captain", "militia_specialist", "militia_captain", "militia_commander", "cache_large"}
+locations.hvl_labs.natGenData.whitelist = {"scav_captain", "militia_infantry", "militia_specialist", "militia_captain", "militia_commander", "cache_large"}
 locations.hvl_labs.natGenData.minSpawn = 5
-locations.hvl_labs.natGenData.maxSpawn = 12
+locations.hvl_labs.natGenData.maxSpawn = 7
 locations.hvl_labs.natGenData.allowHostiles = true
+
+-- Militia base
+locations.hvl_base = {}
+locations.hvl_base.technicalName = "hvl_base"
+locations.hvl_base.displayName = "Militia Base"
+locations.hvl_base.description = "A scavenger's base towers over you. You hope you are prepared enough to fight."
+locations.hvl_base.rarity = "exotic"
+
+locations.hvl_base.natGenData = {}
+locations.hvl_base.natGenData.whitelist = {"militia_specialist", "militia_captain", "militia_commander", "cache_large"}
+locations.hvl_base.natGenData.minSpawn = 9
+locations.hvl_base.natGenData.maxSpawn = 15
+locations.hvl_base.natGenData.allowHostiles = true
 
 return locations
